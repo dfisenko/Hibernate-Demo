@@ -30,6 +30,10 @@ public class PersonService {
         return getPersonDao().selectAll();
     }
 
+    public Person findByName(String name){
+        return personDao.getByName(name);
+    }
+
     public long getCount(){
         return personDao.getCount();
     }

@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import java.util.List;
 
 /**
@@ -16,27 +16,31 @@ import java.util.List;
 @Transactional
 public class PersonDao {
 
-    private static final String SELECT_QUERY = "select p from Person p";
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    public EntityManager getEntityManager() {
-        return entityManager;
+    public Person getByName(String name){
+        TypedQuery<Person> query = entityManager.createNamedQuery(Person.FIND_BY_NAME_QUERY, Person.class);
+        query.setParameter("name", name);
+        return query.getSingleResult();
     }
 
-    public void setEntityManager(EntityManager entityManager) {
-        this.entityManager = entityManager;
+
+    public Person insert(Person person) {
+        if (person.getId() == null){
+            entityManager.persist(person);
+        } else {
+            entityManager.merge(person);
+        }
+        return person;
     }
 
-    public void insert(Person person) {
-        entityManager.persist(person);
-    }
-
+    @Transactional
     public List<Person> selectAll() {
-        Query query = entityManager.createQuery(SELECT_QUERY);
-        List<Person> persons = (List<Person>) query.getResultList();
-        return persons;
+        TypedQuery<Person> query = entityManager.createNamedQuery(Person.SELECT_ALL_QUERY, Person.class);
+        return query.getResultList();
+
     }
 
     public long getCount() {
